@@ -1,0 +1,108 @@
+# Make a blackjack game
+
+from random import *
+
+again = 0
+while again == 0:
+  end = 0
+  # Dealer's hand
+  def random_card():
+    return randint(2,11)
+  dealer_numbers = []
+  while (sum(dealer_numbers)<17 or sum(dealer_numbers)>21) and end == 0:
+    while sum(dealer_numbers)<17 and end == 0:
+      dealer_numbers.append(random_card())
+      if len(dealer_numbers) >= 5 and sum(dealer_numbers) <= 21:
+        end = 1 
+    while sum(dealer_numbers)>21 and end == 0:
+      if 11 in dealer_numbers:
+        index_11 = dealer_numbers.index(11)
+        dealer_numbers.pop(index_11)
+        dealer_numbers.append(1)
+      else:
+        end = 1
+        break
+  print(f"The dealer's cards are as follows:{dealer_numbers} Total: {sum(dealer_numbers)}")
+  if sum(dealer_numbers) == 21:
+    print("The dealer hit 21. You lose")
+    end = 1
+  elif sum(dealer_numbers) > 21:
+    print("You win! The dealer went over 21 and busted.")
+  elif len(dealer_numbers) >= 5:
+    print("The dealer has 5 cards and has not busted. You lose")
+    end = 1
+  player_cards = []
+  #2 cards to start the game
+  player_cards.append(random_card())
+  player_cards.append(random_card())
+  while sum(player_cards)>21:
+    if 11 in player_cards:
+      index_11 = player_cards.index(11)
+      player_cards.pop(index_11)
+      player_cards.append(1)
+
+  err_num = 0
+  x = "1"
+  while end == 0:
+    print(f"Your cards are as follows: {player_cards} Total: {sum(player_cards)}")
+    print("Enter the following numbers to play:\n1 -- Hit\n2 -- Stand\n3 -- Forfeit ")
+    err_num = 0
+    while err_num == 0:
+      x = input("Please enter a number: ")
+      if x == '1':
+        err_num = 1
+        player_cards.append(random_card())
+        if sum(player_cards)==21:
+          print(f"{player_cards} Total: {sum(player_cards)}")
+          print("YOU WIN!")
+          end = 1
+        while sum(player_cards)>21:
+          if 11 in player_cards:
+            index_11 = player_cards.index(11)
+            player_cards.pop(index_11)
+            player_cards.append(1)
+            
+        if sum(player_cards)>21:
+          print(f"{player_cards} Total: {sum(player_cards)}")
+          print("You lost ): You went over 21 and busted.")
+          end = 1
+          break
+        if len(player_cards) == 5:
+          print(f"{player_cards} Total: {sum(player_cards)}")
+          print("You have 5 cards and you have not busted. You win!")
+          end = 1
+      elif x =='2':
+        err_num = 1
+        end = 1
+        dealer_sum = sum(dealer_numbers)
+        player_sum = sum(player_cards)
+        if sum(dealer_numbers)>sum(player_cards):
+          print(f"{player_cards} Total: {sum(player_cards)}")
+          print(f"You lost ): You stood with a lower score {player_sum} than the dealer {dealer_sum}")
+        elif dealer_sum == player_sum:
+          print(f"{player_cards} Total: {sum(player_cards)}")
+          print(f"DRAW. No one wins! Both you and the dealer have the same score of {player_sum}!")
+        else:
+          print(f"{player_cards} Total: {sum(player_cards)}")
+          print(f"You win (: You stood with a higher score {player_sum} than the dealer {dealer_sum}")
+          break
+      elif x == '3':
+        err_num = 1
+        print(f"{player_cards} Total: {sum(player_cards)}")
+        print("You forfeited! ")
+        end = 1
+        break 
+      else:
+        print("Invalid Option")
+  err_again = 0
+  while err_again == 0:
+    play = input("Do you want to play again? (y/n) ")
+    if play == "y":
+      print("Reinitializing game...")
+      err_again = 1
+    elif play == "n":
+      again = 1
+      err_again = 1
+      print("Thank you for playing")
+    else:
+      print("Invalid Option")
