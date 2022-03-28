@@ -1,6 +1,6 @@
 # Blackjack
 
-Blackjack_Ver01 was another creation of my terminal based games which was a collaboration with my brother. It was an enriching experience as it was one of my very first instances with game logic.
+Blackjack_Ver01 was an enriching experience as it was one of my very first instances with game logic.
 
 Blackjack_Ver02 was my first project where I had implemented my knowledge of Object Oriented Programming. I had also formatted my code better compared to the previous version and also added another feature where players can now bet.
 
