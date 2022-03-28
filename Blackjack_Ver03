@@ -1,0 +1,407 @@
+# Blackjack Simulator with turtle
+
+import turtle
+import random
+import time
+
+
+wn = turtle.Screen()
+wn.bgcolor("forest green")
+wn.setup(1150, 600)
+wn.title("Blackjack")
+
+pen = turtle.Turtle()
+pen.speed(0)
+pen.hideturtle()
+
+# Variables for names, suits and values
+names = ("A", "K", "Q", "J", "9", "8", "7", "6", "5", "4", "3", "2")
+suits = ("S", "H", "C", "D")
+values = {"A":11, "K":10, "Q":10, "J":10, "9":9, "8":8, "7":7, "6":6, "5":5, "4":4, "3":3, "2":2}
+
+game_on = True
+
+# Create classes
+class Card():
+    def __init__(self, name, suit):
+        self.name = name
+        self.suit = suit
+        self.symbols = {"S":"♠", "H":"♥", "C":"♣", "D":"♦"}
+        
+    def __str__(self):
+        return (f"{self.name}{self.symbols[self.suit]}")
+        
+    def render(self, x, y, pen):
+        '''
+        Draws the entire card without its suit and name/rank
+        '''
+        pen.penup()
+        pen.goto(x, y)
+        pen.color("white")
+        pen.goto(x-50, y+75)
+        pen.begin_fill()
+        pen.pendown()
+        pen.goto(x+50, y+75)
+        pen.goto(x+50, y-75)
+        pen.goto(x-50, y-75)
+        pen.goto(x-50, y+75)
+        pen.end_fill()
+        pen.penup()
+        
+        if self.name != "":
+            # Draw suit in the middle
+            if self.suit == 'S' or self.suit == 'C':
+                pen.color("black")
+            else:
+                pen.color('red')
+
+            pen.goto(x-18, y-30)
+            pen.write(self.symbols[self.suit], False, font=("Courier New", 48, "normal"))
+            
+            # Draw top left 
+            pen.goto(x-40, y+45)
+            pen.write(self.name, False, font=("Courier New", 18, "normal"))
+            pen.goto(x-40, y+25)
+            pen.write(self.symbols[self.suit], False, font=("Courier New", 18, "normal"))
+            
+            # Draw bottom right
+            pen.goto(x+25, y-60)
+            pen.write(self.name, False, font=("Courier New", 18, "normal"))
+            pen.goto(x+25, y-80)
+            pen.write(self.symbols[self.suit], False, font=("Courier New", 18, "normal"))
+
+
+class Deck():
+    def __init__(self):
+        self.cards = []
+  
+        for suit in suits:
+            for name in names:
+                card = Card(name, suit)
+                self.cards.append(card)
+
+    def shuffle(self):
+        random.shuffle(self.cards)
+    
+    def get_card(self):
+        card = self.cards.pop()
+        return card
+        
+    def reset(self):
+        self.cards = []
+              
+        for name in names:
+            for suit in suits:
+                card = Card(name, suit)
+                self.cards.append(card)
+        
+        self.shuffle()
+
+
+class Hand(Card):
+    
+    def __init__(self):
+        self.cards = [] 
+        self.value = 0   # Start game with zero value
+        self.aces = 0    # Ace counter
+    
+    def add_card(self,card):
+        self.cards.append(card)
+        self.value += values[card.name]
+        if card.name == 'A':
+            self.aces += 1  # Add to ace count(self.aces)
+    
+    def ace_value(self):
+        while self.value > 21 and self.aces:
+            self.value -= 10
+            self.aces -= 1 
+
+def hit(deck, hand):
+    hit_card = deck.get_card()
+    hand.add_card(hit_card)
+    hand.ace_value()
+    return hit_card
+
+def choose_hit_or_stand(deck, hand):
+    global game_on #For control of below while loop
+
+    while True:
+
+        choice = turtle.textinput("Hit or Stand?", "Enter 'h' to Hit or 's' to Stand")[0].lower()
+        x = 3
+        for x in choice:
+            card = hit(deck,hand)
+            card.render(-300 + x * 125, -150, pen)
+            x += 1
+
+        if choice[0].lower() == 's':
+                print('Player stands. Dealer is playing.', False, 'center', font=("Bell MT", 25, "normal"))
+                game_on = False
+        
+        else:
+            continue
+
+            
+        break
+
+
+
+def play_again():
+
+    choice = ''
+
+    while choice[0].lower() not in ['y', 'n']:
+
+        choice = turtle.textinput('Play again?', "Enter 'y' to continue or 'n' to quit.")
+
+    if choice == 'y':
+        return True
+    else:
+        return False
+
+
+# Create deck                
+deck = Deck()
+
+# Shuffle deck
+deck.reset()
+
+
+def intro():
+    # Game introduction
+    pen.penup()
+    pen.goto(0,170)
+    pen.color('white')
+    pen.write('Welcome to', False, 'center', font=("Bell MT", 25, "normal"))
+    pen.goto(0,140)
+    pen.write('❁❁❁❁❁❁❁❁❁❁❁❁❁❁', False, 'center', font=("Courier New", 20, "normal"))
+    pen.goto(0,80)
+    pen.write('Blackjack!', False, 'center', font=("Bell MT", 40, "normal"))
+
+    for x in range(11):
+        if x in [1,3,5,7,9]:
+            card = Card("", "")
+            card = deck.get_card()
+            card.render(-560 + x * 125, -150, pen)
+        else:
+            hidden_card(-560 + x * 125, -150, pen)
+
+def card_values():
+    # Renders cards of a specific name/rank and shows its card value
+    pen.penup()
+    pen.goto(0,230)
+    pen.color('white')
+    pen.write('Blackjack', False, 'center', font=("Bell MT", 35, "bold"))
+    pen.goto(0,185)
+    pen.write('CARD VALUES', False, 'center', font=("Bell MT", 30, "normal"))
+    
+    
+    Card('J', 'S').render(-550 + 1 * 125, 85, pen)
+    Card('Q', 'H').render(-550 + 2 * 125, 85, pen)
+    Card('K', 'C').render(-550 + 3 * 125, 85, pen)
+    Card('10', 'D').render(-550 + 4 * 125, 85, pen)
+    pen.color('white')
+    pen.goto(-550 + 5 * 125, 85)
+    pen.write(' = 10', False, 'center', font=("Courier New", 30, "normal"))
+
+
+
+    Card('A', 'S').render(-550 + 6.25 * 125, 85, pen)
+    pen.color('white')
+    pen.goto(-550 + 7.5 * 125, 85)
+    pen.write(" = 1 OR 11", False, 'center', font=("Courier New", 25, "normal"))
+
+
+
+    Card('2', 'C').render(-550 + 1 * 125, -125, pen)
+    pen.color('white')
+    pen.goto(-550 + 1 * 125, -250,)
+    pen.write('2', False, 'center', font=("Courier New", 25, "normal"))
+    
+    Card('3', 'D').render(-550 + 2 * 125, -125, pen)
+    pen.color('white')
+    pen.goto(-550 + 2 * 125, -250,)
+    pen.write('3', False, 'center', font=("Courier New", 25, "normal"))
+    
+    Card('4', 'S').render(-550 + 3 * 125, -125, pen)
+    pen.color('white')
+    pen.goto(-550 + 3 * 125, -250,)
+    pen.write('4', False, 'center', font=("Courier New", 25, "normal"))
+    
+    Card('5', 'H').render(-550 + 4 * 125, -125, pen)
+    pen.color('white')
+    pen.goto(-550 + 4 * 125, -250,)
+    pen.write('5', False, 'center', font=("Courier New", 25, "normal"))
+    
+    Card('6', 'C').render(-550 + 5 * 125, -125, pen)
+    pen.color('white')
+    pen.goto(-550 + 5 * 125, -250,)
+    pen.write('6', False, 'center', font=("Courier New", 25, "normal"))
+    
+    Card('7', 'D').render(-550 + 6 * 125, -125, pen)
+    pen.color('white')
+    pen.goto(-550 + 6 * 125, -250,)
+    pen.write('7', False, 'center', font=("Courier New", 25, "normal"))
+    
+    Card('8', 'S').render(-550 + 7 * 125, -125, pen)
+    pen.color('white')
+    pen.goto(-550 + 7 * 125, -250,)
+    pen.write('8', False, 'center', font=("Courier New", 25, "normal"))
+    
+    Card('9', 'H').render(-550 + 8 * 125, -125, pen)
+    pen.color('white')
+    pen.goto(-550 + 8 * 125, -250,)
+    pen.write('9', False, 'center', font=("Courier New", 25, "normal"))
+
+def hidden_card(x, y, pen):
+    pen.penup()
+    pen.goto(x, y)
+    pen.color("blue")
+    pen.goto(x-50, y+75)
+    pen.begin_fill()
+    pen.pendown()
+    pen.goto(x+50, y+75)
+    pen.goto(x+50, y-75)
+    pen.goto(x-50, y-75)
+    pen.goto(x-50, y+75)
+    pen.end_fill()
+    pen.penup()
+    pen.color('white')
+    pen.goto(x-25,y+22.5)
+    pen.write("◈", False, 'center', font=("Courier New", 35, "normal"))
+    pen.goto(x+25,y+22.5)
+    pen.write("◈", False, 'center', font=("Courier New", 35, "normal"))
+    pen.goto(x,y-25)
+    pen.write("◈", False, 'center', font=("Courier New", 35, "normal"))
+    pen.goto(x-25,y-75)
+    pen.write("◈", False, 'center', font=("Courier New", 35, "normal"))
+    pen.goto(x+25,y-75)
+    pen.write("◈", False, 'center', font=("Courier New", 35, "normal"))
+  
+def game_setup():
+    # Player's 1st card (Face up)
+    x = 1
+    card = Card('', '')
+    card = deck.get_card()
+    card.render(-300 + x * 125, -150, pen)
+    player_hand.add_card(card)
+    
+    # Dealer's 1st card (Face up)
+    x = 1
+    card = Card("", "")
+    card = deck.get_card()
+    card.render(-300 + x * 125, 175, pen)
+    dealer_hand.add_card(card)
+    
+    # Player's 2nd card (Face up)
+    x = 2
+    card = Card('', '')
+    card = deck.get_card()
+    card.render(-300 + x * 125, -150, pen)
+    player_hand.add_card(card)
+    
+    # Dealer's 2nd card (Hidden)
+    x = 2
+    card = Card('', '')
+    card = deck.get_card()
+    hidden_card(-300 + x * 125, 175, pen)
+    dealer_hand.add_card(card)
+
+    # Dealer's value
+    pen.goto(-450, 175)
+    pen.write("Dealer's hand:", False, 'center', font=("Bell MT", 20, "normal"))
+    pen.goto(-450, 145)
+    pen.write(dealer_hand.value, False, 'center', font=("Bell MT", 20, "normal"))
+
+    # Player's value 
+    pen.goto(-450, -120)
+    pen.write("Player's hand:", False, 'center', font=("Bell MT", 20, "normal"))
+    pen.goto(-450, -150)
+    pen.write(player_hand.value, False, 'center', font=("Bell MT", 20, "normal"))
+
+    
+# GAME LOOP
+while True:
+    # Create deck                
+    deck = Deck()
+
+    # Shuffle deck
+    deck.reset()
+
+    intro()
+    pen.clear()
+    card_values()
+
+    time.sleep(3)
+
+    pen.clear()
+
+    # Making Player's hand and Dealer's hand
+    player_hand = Hand()
+    dealer_hand= Hand()
+
+    game_setup()
+
+    ## Note variable is from choose_hit_or_stand function
+    while game_on:
+
+        choose_hit_or_stand(deck, player_hand)
+
+        if player_hand.value > 21:
+            pen.color('white')
+            pen.goto(0, 0)
+            pen.write('Player has bust. Dealer has won!', False, 'center', font=("Bell MT", 25, "normal"))
+            game_on = False
+
+
+    # If player had not bust, dealer will hit till his cards value reach 17
+    if player_hand.value <= 21:
+
+        while dealer_hand.value < 17:
+            hit(deck, dealer_hand)
+
+        #Show Dealer's hidden card
+        card = dealer_hand[1]
+        card.render((-350 + x * 125, 175, pen))
+
+        # Different outcomes if dealer's card values = 17
+        if dealer_hand.value > 21:
+            pen.write('Dealer has bust. Player wins!', False, 'center', font=("Bell MT", 25, "normal"))
+            game_on = False
+
+        elif player_hand.value == 21:
+            pen.write('Blackjack. Player wins!', False, 'center', font=("Bell MT", 25, "normal"))
+            game_on = False
+
+        elif dealer_hand.value == 21:
+            pen.write('Blackjack. Dealer wins!', False, 'center', font=("Bell MT", 25, "normal"))
+            game_on = False
+        
+        elif dealer_hand.value > player_hand.value and dealer_hand.value < 21:
+            pen.write('Dealer wins!', False, 'center', font=("Bell MT", 25, "normal"))
+            game_on = False
+        
+        elif dealer_hand.value < player_hand.value and player_hand.value < 21:
+            pen.write('Player wins!', False, 'center', font=("Bell MT", 25, "normal"))
+            game_on = False
+        
+        else:
+            pen.write("It's a Draw!", False, 'center', font=("Bell MT", 25, "normal"))
+            game_on = False
+
+    if game_on == False:
+        pen.clear()
+        pen.write('Game Over!', False, 'center', font=("Bell MT", 25, "normal"))
+        time.sleep(5)
+        play_again()
+
+        if play_again() == False:
+            pen.clear()
+            pen.write('Thank you for playing!', False, 'center', font=("Bell MT", 50, "normal"))
+            time.sleep(2)
+            break
+        else:
+            continue
+
+
+wn.mainloop()
