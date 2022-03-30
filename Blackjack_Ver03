@@ -32,9 +32,8 @@ class Card():
         return (f"{self.name}{self.symbols[self.suit]}")
         
     def render(self, x, y, pen):
-        '''
-        Draws the entire card without its suit and name/rank
-        '''
+        #Draws the entire card without its suit and name/rank
+        
         pen.penup()
         pen.goto(x, y)
         pen.color("white")
