@@ -1,10 +1,13 @@
 # Blackjack Simulator with turtle
 
+# Modules
+from ast import Break
+from curses.ascii import isdigit
 import turtle
 import random
 import time
 
-
+# Turtle Window
 wn = turtle.Screen()
 wn.bgcolor("forest green")
 wn.setup(1150, 600)
@@ -19,9 +22,7 @@ names = ("A", "K", "Q", "J", "9", "8", "7", "6", "5", "4", "3", "2")
 suits = ("S", "H", "C", "D")
 values = {"A":11, "K":10, "Q":10, "J":10, "9":9, "8":8, "7":7, "6":6, "5":5, "4":4, "3":3, "2":2}
 
-game_on = True
-
-# Create classes
+# Card Class
 class Card():
     def __init__(self, name, suit):
         self.name = name
@@ -32,8 +33,8 @@ class Card():
         return (f"{self.name}{self.symbols[self.suit]}")
         
     def render(self, x, y, pen):
+
         #Draws the entire card without its suit and name/rank
-        
         pen.penup()
         pen.goto(x, y)
         pen.color("white")
@@ -70,6 +71,7 @@ class Card():
             pen.write(self.symbols[self.suit], False, font=("Courier New", 18, "normal"))
 
 
+# Deck Class
 class Deck():
     def __init__(self):
         self.cards = []
@@ -97,7 +99,8 @@ class Deck():
         self.shuffle()
 
 
-class Hand(Card):
+# Hand Class
+class Hand():
     
     def __init__(self):
         self.cards = [] 
@@ -115,59 +118,32 @@ class Hand(Card):
             self.value -= 10
             self.aces -= 1 
 
-def hit(deck, hand):
+
+# Hit function to deal a card
+def hit(deck, hand, x, y, pen):
     hit_card = deck.get_card()
+    hit_card.render(-420 + x * 125, y, pen)
     hand.add_card(hit_card)
     hand.ace_value()
-    return hit_card
 
+# Function to ask to Hit or Stand
 def choose_hit_or_stand(deck, hand):
-    global game_on #For control of below while loop
-
-    while True:
-
-        choice = turtle.textinput("Hit or Stand?", "Enter 'h' to Hit or 's' to Stand")[0].lower()
-        x = 3
-        for x in choice:
-            card = hit(deck,hand)
-            card.render(-300 + x * 125, -150, pen)
-            x += 1
-
-        if choice[0].lower() == 's':
-                print('Player stands. Dealer is playing.', False, 'center', font=("Bell MT", 25, "normal"))
-                game_on = False
-        
-        else:
-            continue
-
-            
-        break
-
-
-
-def play_again():
-
+    
     choice = ''
 
-    while choice[0].lower() not in ['y', 'n']:
+    while choice not in ['1', '2']:
 
-        choice = turtle.textinput('Play again?', "Enter 'y' to continue or 'n' to quit.")
+        choice = turtle.textinput("Hit or Stand?", "Enter 1 to Hit and 2 to Stand.")
 
-    if choice == 'y':
+    if choice == '1':
         return True
+
     else:
         return False
 
-
-# Create deck                
-deck = Deck()
-
-# Shuffle deck
-deck.reset()
-
-
+# Game introduction
 def intro():
-    # Game introduction
+    
     pen.penup()
     pen.goto(0,170)
     pen.color('white')
@@ -185,8 +161,9 @@ def intro():
         else:
             hidden_card(-560 + x * 125, -150, pen)
 
+# Renders cards of a specific name/rank and shows its card value
 def card_values():
-    # Renders cards of a specific name/rank and shows its card value
+    
     pen.penup()
     pen.goto(0,230)
     pen.color('white')
@@ -252,6 +229,7 @@ def card_values():
     pen.goto(-550 + 8 * 125, -250,)
     pen.write('9', False, 'center', font=("Courier New", 25, "normal"))
 
+# Card Background
 def hidden_card(x, y, pen):
     pen.penup()
     pen.goto(x, y)
@@ -276,64 +254,100 @@ def hidden_card(x, y, pen):
     pen.write("◈", False, 'center', font=("Courier New", 35, "normal"))
     pen.goto(x+25,y-75)
     pen.write("◈", False, 'center', font=("Courier New", 35, "normal"))
-  
+
+def value_background(x, y, pen):
+  pen.penup()
+  pen.color('forest green')
+  pen.fillcolor('forest green')
+  pen.goto(x,y)
+  pen.pendown()
+  pen.begin_fill()
+  pen.circle(20)
+  pen.end_fill()
+
+# The first 4 cards to start off the game
 def game_setup():
     # Player's 1st card (Face up)
     x = 1
     card = Card('', '')
     card = deck.get_card()
-    card.render(-300 + x * 125, -150, pen)
+    card.render(-420 + x * 125, -150, pen)
     player_hand.add_card(card)
     
     # Dealer's 1st card (Face up)
     x = 1
     card = Card("", "")
     card = deck.get_card()
-    card.render(-300 + x * 125, 175, pen)
+    card.render(-420 + x * 125, 175, pen)
     dealer_hand.add_card(card)
     
     # Player's 2nd card (Face up)
     x = 2
     card = Card('', '')
     card = deck.get_card()
-    card.render(-300 + x * 125, -150, pen)
+    card.render(-420 + x * 125, -150, pen)
     player_hand.add_card(card)
     
     # Dealer's 2nd card (Hidden)
     x = 2
     card = Card('', '')
     card = deck.get_card()
-    hidden_card(-300 + x * 125, 175, pen)
+    hidden_card(-420 + x * 125, 175, pen)
     dealer_hand.add_card(card)
 
     # Dealer's value
     pen.goto(-450, 175)
-    pen.write("Dealer's hand:", False, 'center', font=("Bell MT", 20, "normal"))
-    pen.goto(-450, 145)
-    pen.write(dealer_hand.value, False, 'center', font=("Bell MT", 20, "normal"))
+    pen.color('white')
+    pen.write("Dealer", False, 'center', font=("Bell MT", 20, "normal"))
+    
 
     # Player's value 
     pen.goto(-450, -120)
-    pen.write("Player's hand:", False, 'center', font=("Bell MT", 20, "normal"))
-    pen.goto(-450, -150)
+    pen.write("Player", False, 'center', font=("Bell MT", 20, "normal"))
+    pen.goto(-450, -160)
+    pen.color('white')
     pen.write(player_hand.value, False, 'center', font=("Bell MT", 20, "normal"))
 
+# Play Again
+def play_again():
     
-# GAME LOOP
+    choice = ''
+
+    while choice not in ['1', '2']:
+        
+        choice = turtle.textinput('Play again?', 'Would you like to play again? Enter 1 to continue or 2 to quit.')
+
+
+    if choice == '1':
+        return True
+    else:
+        return False
+
+
+# Game Loop
+game_on = True
+
+# Create deck                
+deck = Deck()
+
+# Shuffle deck
+deck.reset()
+
+intro()
+pen.clear()
+
+card_values()
+time.sleep(2)
+pen.clear()
+
+
 while True:
+
     # Create deck                
     deck = Deck()
 
     # Shuffle deck
     deck.reset()
-
-    intro()
-    pen.clear()
-    card_values()
-
-    time.sleep(3)
-
-    pen.clear()
 
     # Making Player's hand and Dealer's hand
     player_hand = Hand()
@@ -341,66 +355,107 @@ while True:
 
     game_setup()
 
-    ## Note variable is from choose_hit_or_stand function
+    if player_hand.value == 21:
+        pen.color('white')
+        pen.goto(0, 0)
+        pen.write('Blackjack! Player has won!', False, 'center', font=("Bell MT", 25, "normal"))
+ 
+    x = 3
+
     while game_on:
 
-        choose_hit_or_stand(deck, player_hand)
+        result = choose_hit_or_stand(deck, player_hand)
+
+        if result == True:
+            y = -150
+            hit(deck, player_hand, x, y, pen)
+            x += 1
+
+            value_background(-450, -160, pen)
+            pen.goto(-450, -160)
+            pen.color('white')
+            pen.write(player_hand.value, False, 'center', font=("Bell MT", 20, "normal"))
+            pen.penup()
+
+            continue
+
+        if result == False:
+            pen.color('white')
+            pen.goto(-450, 145)
+            pen.write(dealer_hand.value, False, 'center', font=("Bell MT", 20, "normal"))
+            card_2 = dealer_hand.cards[1]
+            card_2.render(-420 + 2 * 125, 175, pen)
+            game_on = False
 
         if player_hand.value > 21:
             pen.color('white')
             pen.goto(0, 0)
             pen.write('Player has bust. Dealer has won!', False, 'center', font=("Bell MT", 25, "normal"))
             game_on = False
+            break
+            
+    
+    x = 3
 
-
-    # If player had not bust, dealer will hit till his cards value reach 17
     if player_hand.value <= 21:
-
+        
         while dealer_hand.value < 17:
-            hit(deck, dealer_hand)
+            
+            y = 175
+            hit(deck, dealer_hand, x, y, pen)
+            x += 1
 
-        #Show Dealer's hidden card
-        card = dealer_hand[1]
-        card.render((-350 + x * 125, 175, pen))
+            value_background(-450, 145, pen)
+            pen.goto(-450, 145)
+            pen.color('white')
+            pen.write(player_hand.value, False, 'center', font=("Bell MT", 20, "normal"))
+            pen.penup()
 
         # Different outcomes if dealer's card values = 17
         if dealer_hand.value > 21:
+            pen.color('white')
+            pen.goto(0, 0)
             pen.write('Dealer has bust. Player wins!', False, 'center', font=("Bell MT", 25, "normal"))
-            game_on = False
-
-        elif player_hand.value == 21:
-            pen.write('Blackjack. Player wins!', False, 'center', font=("Bell MT", 25, "normal"))
-            game_on = False
+            break
 
         elif dealer_hand.value == 21:
+            pen.color('white')
+            pen.goto(0, 0)
             pen.write('Blackjack. Dealer wins!', False, 'center', font=("Bell MT", 25, "normal"))
-            game_on = False
+            break
         
         elif dealer_hand.value > player_hand.value and dealer_hand.value < 21:
+            pen.color('white')
+            pen.goto(0, 0)
             pen.write('Dealer wins!', False, 'center', font=("Bell MT", 25, "normal"))
-            game_on = False
+            break
         
         elif dealer_hand.value < player_hand.value and player_hand.value < 21:
+            pen.color('white')
+            pen.goto(0, 0)
             pen.write('Player wins!', False, 'center', font=("Bell MT", 25, "normal"))
-            game_on = False
+            break
         
         else:
-            pen.write("It's a Draw!", False, 'center', font=("Bell MT", 25, "normal"))
-            game_on = False
-
-    if game_on == False:
-        pen.clear()
-        pen.write('Game Over!', False, 'center', font=("Bell MT", 25, "normal"))
-        time.sleep(5)
-        play_again()
-
-        if play_again() == False:
-            pen.clear()
-            pen.write('Thank you for playing!', False, 'center', font=("Bell MT", 50, "normal"))
-            time.sleep(2)
+            pen.color('white')
+            pen.goto(0, 0)
+            pen.write("Dealer and Player tie! It's a Push.", False, 'center', font=("Bell MT", 25, "normal"))
             break
-        else:
-            continue
+ 
+
+    if play_again() == True:
+        pen.clear()
+        game_on = True
+        continue
+
+    else:
+        pen.clear()
+        pen.color('white')
+        pen.goto(0, 0)
+        pen.write('Thank you for playing!', False, 'center', font=("Bell MT", 50, "normal"))
+        time.sleep(1)
+        game_on = False
+        quit()
 
 
 wn.mainloop()
