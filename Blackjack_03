@@ -405,7 +405,7 @@ while True:
             hit(deck, dealer_hand, x, y, pen)
             x += 1
 
-            value_background(-450, 145, pen)
+            value_background(-450, 140, pen)
             pen.goto(-450, 145)
             pen.color('white')
             pen.write(player_hand.value, False, 'center', font=("Bell MT", 20, "normal"))
