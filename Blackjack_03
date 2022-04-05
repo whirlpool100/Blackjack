@@ -1,8 +1,6 @@
 # Blackjack Simulator with turtle
 
 # Modules
-from ast import Break
-from curses.ascii import isdigit
 import turtle
 import random
 import time
@@ -376,7 +374,6 @@ while True:
             pen.color('white')
             pen.write(player_hand.value, False, 'center', font=("Bell MT", 20, "normal"))
             pen.penup()
-
             continue
 
         if result == False:
@@ -391,9 +388,7 @@ while True:
             pen.color('white')
             pen.goto(0, 0)
             pen.write('Player has bust. Dealer has won!', False, 'center', font=("Bell MT", 25, "normal"))
-            game_on = False
-            break
-            
+            game_on = False            
     
     x = 3
 
@@ -416,32 +411,32 @@ while True:
             pen.color('white')
             pen.goto(0, 0)
             pen.write('Dealer has bust. Player wins!', False, 'center', font=("Bell MT", 25, "normal"))
-            break
+            game_on = False
 
         elif dealer_hand.value == 21:
             pen.color('white')
             pen.goto(0, 0)
             pen.write('Blackjack. Dealer wins!', False, 'center', font=("Bell MT", 25, "normal"))
-            break
+            game_on = False
         
         elif dealer_hand.value > player_hand.value and dealer_hand.value < 21:
             pen.color('white')
             pen.goto(0, 0)
             pen.write('Dealer wins!', False, 'center', font=("Bell MT", 25, "normal"))
-            break
+            game_on = False
         
         elif dealer_hand.value < player_hand.value and player_hand.value < 21:
             pen.color('white')
             pen.goto(0, 0)
             pen.write('Player wins!', False, 'center', font=("Bell MT", 25, "normal"))
-            break
+            game_on = False
         
         else:
             pen.color('white')
             pen.goto(0, 0)
             pen.write("Dealer and Player tie! It's a Push.", False, 'center', font=("Bell MT", 25, "normal"))
-            break
- 
+            
+
 
     if play_again() == True:
         pen.clear()
@@ -458,4 +453,5 @@ while True:
         quit()
 
 
-wn.mainloop()
+
+wn.mainlop()
