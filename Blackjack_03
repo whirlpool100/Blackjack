@@ -4,6 +4,10 @@
 import turtle
 import random
 import time
+#Start
+def source_control():
+    return 'Good Stuff'
+#End
 
 # Turtle Window
 wn = turtle.Screen()
